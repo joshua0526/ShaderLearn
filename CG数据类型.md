@@ -86,3 +86,44 @@ k = float3(1.0,1.0,0.0);
 以 i 的第一个数据赋值给 K 的第一个数据， g 的第二个和第三个数据赋值给 k 的第二 
 个和第三个数据， K 的值为 (1.0, 1.0, 0.0) 。 
 
+##GPU图形绘制管线原理
+* 程序应用阶段：应用程序(宿主程序)将图元信息(顶点位置、法向量、 纹理坐标等)传递给顶点着色程序。 
+* 几何阶段：顶点着色程序基于图元信息进行坐标空间转换，运算得到的数据传递到片段着色程序中。
+* 光栅化阶段：片段着色程序接收来之顶点着色程序的输入数据，并且接受从应用程序中传递的纹理信息，将这些信息综合起来计算每个片段的颜色值，最后将这些 颜色值输送到帧缓冲区(或颜色缓冲区)中。
+## Cg关键字
+* Varying inputs：即数据流输入图元信息的各种组成要素。从应用程序输入到 GPU 的数据除了顶点位置数据，还有顶点的法向量数据，纹理坐标数据等。Cg 语言供了一组语义词，用以表明参数是由顶点的哪些数据初始化的。
+* Uniform inputs：表示一些与三维渲染有关的离散信息数据，这些数据通常由应用程序传入，并通常不会随着图元信息的变化而变化，如材质对光的反射信息、运动矩阵等。Uniform修辞一个参数，表示该参数的值由外部应用程序初始化并传入;例如在参数列表中写:
+>uniform float brightness,  
+unifiorm float4x4 modelWorldProject
+
+uniform 修辞的变量的值是从外部传入的。
+## 语义绑定方法
+>[const][in|out|inout]<type<type>><identifier<identifier>>[:<binding-semantic<type>>][=<initializer<type>>]
+
+其中，const 作为可选项，修辞形参数据;in、out、inout 作为可选项，说明数据的调用方式;type 是必选项，声明数据的类型;identifier是必选项，形参变量名;一个冒号“:”加上一个绑定语义，是可选项;最后是初始化 参数，是可选项。
+
+绑定语义可以放在结构体(struct)的成员变量后面:
+>struct <struct-tag<type>>{  
+    <type<type>><identifier<identifier>>[:<binding-semantic<type>>]  
+}
+
+举例如下，结构 C2E1v_Outpu 中的 2 个成员变量分别绑定到语义 POSITION 和 COLOR，然后在 C2E1v_green 顶点程序入口函数中输出，所以C2E1v_Outpu 中的语义是输出语义。
+>struct C2E1v_Output{  
+    float4 position:POSITION;  
+    float3 color:COLOR;  
+}  
+C2E1v_Output C2E1v_green(float2 position:POSITION){  
+    C2E1v_Output OUT;  
+    OUT.position = float4(position,0,1);  
+    OUT.color = float3(0,1,0);  
+    return OUT;  
+}
+
+绑定语义词可以放在函数声明的后面，其形式为:
+><type<type>><identifier<identifier>>(<parameter-list<type>>)[:<binding-semantic<type>>]{}
+
+最后一种语义绑定的方法是，将绑定语义词放在全局非静态变量的声明后 面。其形式为:
+><type<type>><identifier<identifier>>[:<binding-semantic<type>>][=<initializer<type>>]
+
+## Cg函数与标准函数库
+[Cg函数与标准函数库链接地址](https://blog.csdn.net/honey199396/article/details/77943005)
