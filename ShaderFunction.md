@@ -67,7 +67,7 @@ UNITY_MATRIX_MV的逆转置矩阵，用于将发现从模型空间转换到观�
 ### unity_ObjectToWorld(_Object2World)
 当前的模型矩阵，用于将顶点/方向矢量从模型空间变换到世界空间。
 ### unity_WorldToObject(_World2Object)
-用于将顶点/方向矢量从世界空间转换到模型空间。
+用于将顶点/方向矢量从世界空间转换到模型空间,右mul。
 ## 摄像机和屏幕参数
 ### float3 _WorldSpaceCameraPos
 该摄像机在世界空间中的位置。
